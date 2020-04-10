@@ -28,12 +28,10 @@ struct snake{
 	std::vector<std::shared_ptr<Point>> points;
 	direction direct;
 };
-//time per block move in milliseconds
-int frameTime{100};
 
 //checks the game board, determines if the snake if going to run into the wall or itself
 bool isAlive(snake player, const std::vector<short> &board){
-	short index = (*player.points.back()).getX() + 40*(*player.points.back()).getY() - 1;
+	short index = (*player.points.back()).getX() + 40*((*player.points.back()).getY()-1) - 1;
 	if(player.direct == UP){
 		if(index <= 39)
 			return false;
@@ -49,7 +47,7 @@ bool isAlive(snake player, const std::vector<short> &board){
 		else
 			return true;
 	}else if(player.direct == RIGHT){
-		if(index % 39 == 0 && index != 0)
+		if((index+1) % 40 == 0 && index != 0)
 			return false;
 		else if(board[index + 1] == 1)
 			return false;
@@ -102,26 +100,28 @@ bool eatFood(snake &player, const std::vector<short> &board, const short index){
 
 void moveSnake(snake &player, std::vector<short> &board, bool &food){
 	int x{(*player.points.back()).getX()}, y{(*player.points.back()).getY()};
-	short index =  x + 40*y - 1;
+	short index =  x + 40*(y-1) - 1;
+	bool trig{eatFood(player, board, index)};
 	if(player.direct == UP){
-			board[index - 40] = 1;
-			player.points.push_back((std::make_shared<Point>(x,y - 1)));
-		}else if(player.direct == DOWN){
-			board[index + 40] = 1;
-			player.points.push_back((std::make_shared<Point>(x,y + 1)));
-		}else if(player.direct == RIGHT){
-			board[index + 1] = 1;
-			player.points.push_back((std::make_shared<Point>(x+1,y)));
-		}else if(player.direct == LEFT){
-			board[index-1] = 1;
-			player.points.push_back((std::make_shared<Point>(x-1,y)));
-		}
-	if(eatFood(player, board, index)){
+		board[index - 40] = 1;
+		player.points.push_back(std::make_shared<Point>(x,y - 1));
+	}else if(player.direct == DOWN){
+		board[index + 40] = 1;
+		player.points.push_back(std::make_shared<Point>(x,y + 1));
+	}else if(player.direct == RIGHT){
+		board[index + 1] = 1;
+		player.points.push_back(std::make_shared<Point>(x + 1,y));
+	}else if(player.direct == LEFT){
+		board[index-1] = 1;
+		player.points.push_back(std::make_shared<Point>(x - 1,y));
+	}
+	if(trig){
 		food = false;
 		++player.length;
 	}else{
-		board[(*player.points[0]).getX() + 40*(*player.points[0]).getY() - 1] = 0;
+		board[(*player.points[0]).getX() + 40*((*player.points[0]).getY()-1) - 1] = 0;
 		player.points.erase(player.points.begin());
+		std::cout << player.points.size();
 	}
 }
 
@@ -131,6 +131,7 @@ CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
 
 void printBoard(const std::vector<short> board){
 	hStdout = GetStdHandle(STD_OUTPUT_HANDLE); 
+	printf("\n");
 	for (int i = 0; i < board.size(); ++i)
 	{
 		if(board[i] == 0){
@@ -141,11 +142,13 @@ void printBoard(const std::vector<short> board){
 			SetConsoleTextAttribute(hStdout, BACKGROUND_RED);
 		}
 		printf("  ");
+		if((i+1) % 40 == 0)
+			printf("\n");
 	}
 }
 
 void placeFood(snake player, std::vector<short> &board){
-	std::uniform_int_distribution foodPlacer{0, 1400-player.length - 1};
+	std::uniform_int_distribution foodPlacer{1, 1400-player.length - 1};
 	int number{foodPlacer(mersenne)};
 	for (int i = 0; i < board.size(); ++i)
 	{
@@ -173,19 +176,12 @@ void runGame(){
 
 	//setting up the board for initial position
 	//create random number generator for placing the field
-	board[699] = 1;
+	board[659] = 1;
 	placeFood(player, board);
 	bool food{true};
 
-
-	while(isAlive(player, board)){
-		printBoard(board);
-		//already tested if player is going to be alive in the while loop
-		//so this is finding out their next move, and also the eating food mechanics
-		moveSnake(player, board, food);	
-		if(!food){
-			placeFood(player, board);
-		}
+	bool trigger{true};
+	while(trigger){
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		char move{};
 		if(player.direct == UP){
@@ -197,8 +193,12 @@ void runGame(){
 		}else if(player.direct == LEFT){
 			move = 'a';
 		}
-		while((std::chrono::steady_clock::now() - begin).count() < 1000){
-			char hold{static_cast<char>(getch())};
+		while((std::chrono::steady_clock::now() - begin).count() < 500000000){
+			char hold{};
+			if(kbhit()){
+				hold = getch();
+			}
+			//std::cout << hold;
 			if(!std::cin.fail()){
 				if(hold == 'w'){
 					move = 'w';
@@ -219,5 +219,19 @@ void runGame(){
 		}else if(move == 'a'){
 			player.direct = LEFT;
 		}
+
+		if(!isAlive(player, board))
+			break;
+		
+		moveSnake(player, board, food);	
+
+		if(!food){
+			placeFood(player, board);
+			food = true;
+		}
+
+		printBoard(board);
+
+
 	}
 }

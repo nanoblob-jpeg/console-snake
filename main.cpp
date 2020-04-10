@@ -35,15 +35,14 @@ int main (void)
     //start game in it's own thread
 	std::thread gameThread(runGame);
 
-
 	gameThread.join();
 
 	std::cout << "Thanks for playing";
 
 	//closing the console window
-	HWND wnd=GetConsoleWindow();
-	PostMessage(wnd, WM_CLOSE, 0, 0);
+	//HWND wnd=GetConsoleWindow();
+	//PostMessage(wnd, WM_CLOSE, 0, 0);
 	system("color 07");
-	exit(0);
+	//exit(0);
 	return 0;
 }
