@@ -3,9 +3,12 @@
 //for the keypresses
 #include <conio.h>
 
+#ifndef WINDOWS
+#define WINDOWS
 //for multithreading
 #include "mingw.thread.h"
-
+#include <windows.h>
+#endif
 //the following line is necessary for the
 //  GetConsoleWindow() function to work!
 //it basically says that you are running this
@@ -14,15 +17,8 @@
 #define _WIN32_WINNT 0x0500
 #endif
 
-//windows API
-#include <windows.h>
-
 //game header file
 #include "game.h"
-
-//variables for color changing
-HANDLE hStdout; 
-CONSOLE_SCREEN_BUFFER_INFO csbiInfo; 
 
 
 int main (void)
@@ -37,7 +33,7 @@ int main (void)
     MoveWindow(console, r.left, r.top, width, height, TRUE);
 
     //start game in it's own thread
-	std::thread gameThread(runGame, width, height);
+	std::thread gameThread(runGame);
 
 
 	gameThread.join();
@@ -45,25 +41,9 @@ int main (void)
 	std::cout << "Thanks for playing";
 
 	//closing the console window
-	//HWND wnd=GetConsoleWindow();
-	//PostMessage(wnd, WM_CLOSE, 0, 0);
-	//exit(0);
+	HWND wnd=GetConsoleWindow();
+	PostMessage(wnd, WM_CLOSE, 0, 0);
+	system("color 07");
+	exit(0);
 	return 0;
 }
-
-
-
-
-//resizing the window
-/*
-
- */
-
-//changing the color
-/*
-    hStdout = GetStdHandle(STD_OUTPUT_HANDLE); 
-    SetConsoleTextAttribute(hStdout,  BACKGROUND_RED | BACKGROUND_GREEN | FOREGROUND_INTENSITY);
-    cout << "test  ";
-
-    SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
- */
