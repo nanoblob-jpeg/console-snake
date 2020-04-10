@@ -29,7 +29,13 @@ struct snake{
 	direction direct;
 };
 
-//checks the game board, determines if the snake if going to run into the wall or itself
+/**
+ * @param player struct for the snake location data
+ * @param board used for board information
+ * @return boolean of if the snake is about to run into the wall or itself
+ *
+ * Checks next space to see if it is a snake part or a border
+ */
 bool isAlive(snake player, const std::vector<short> &board){
 	short index = (*player.points.back()).getX() + 40*((*player.points.back()).getY()-1) - 1;
 	if(player.direct == UP){
@@ -70,6 +76,8 @@ bool isAlive(snake player, const std::vector<short> &board){
  * @param player struct to get location of head
  * @param board to find out the things on each square
  * @return boolean based on if the snake is about to eat a "food"
+ *
+ * Determines whether the snake is about to eat the food by checking the next space it is about to move into
  */
 bool eatFood(snake &player, const std::vector<short> &board, const short index){
 	if(player.direct == UP){
@@ -98,6 +106,14 @@ bool eatFood(snake &player, const std::vector<short> &board, const short index){
 	}
 }
 
+/**
+ * @param player struct included for location information
+ * @param board included for board information
+ * @param food included to indicate whether the snake is about to "eat" the "food"
+ *
+ * This removes the end block of the snake to the next space it would move into
+ * Checks if it is about to eat food, if it is, it doesn't move the back to the front and changes the food into part of the snake
+ */
 void moveSnake(snake &player, std::vector<short> &board, bool &food){
 	int x{(*player.points.back()).getX()}, y{(*player.points.back()).getY()};
 	short index =  x + 40*(y-1) - 1;
@@ -129,6 +145,15 @@ void moveSnake(snake &player, std::vector<short> &board, bool &food){
 HANDLE hStdout; 
 CONSOLE_SCREEN_BUFFER_INFO csbiInfo; 
 
+/**
+ * @param board used for board data
+ *
+ * prints out the actual interface
+ * snake is colored white
+ * the background is black
+ * the food is red
+ * Loops through the board and print spaces with changing the background color
+ */
 void printBoard(const std::vector<short> board){
 	hStdout = GetStdHandle(STD_OUTPUT_HANDLE); 
 	printf("\n");
@@ -147,6 +172,13 @@ void printBoard(const std::vector<short> board){
 	}
 }
 
+/**
+ * @param struct player used for length data
+ * @param board included for board data
+ *
+ * This calculates a random number from 1 to the number of spaces not taken up by the snake.
+ * It then loops through n number of blank spaces and then places the food
+ */
 void placeFood(snake player, std::vector<short> &board){
 	std::uniform_int_distribution foodPlacer{1, 1400-player.length - 1};
 	int number{foodPlacer(mersenne)};
@@ -161,6 +193,9 @@ void placeFood(snake player, std::vector<short> &board){
 	}
 }
 
+/**
+ * the game loop
+ */
 void runGame(){
 	//create board filled with 0
 	std::vector<short> board(1400, 0);
