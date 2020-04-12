@@ -228,7 +228,7 @@ void runGame(){
 		}else if(player.direct == LEFT){
 			move = 'a';
 		}
-		while((std::chrono::steady_clock::now() - begin).count() < 500000000){
+		while((std::chrono::steady_clock::now() - begin).count() < 250000000){
 			char hold{};
 			if(kbhit()){
 				hold = getch();
