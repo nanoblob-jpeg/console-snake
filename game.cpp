@@ -156,29 +156,40 @@ CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
  */
 void printBoard(const std::vector<short> board){
 	hStdout = GetStdHandle(STD_OUTPUT_HANDLE); 
-	printf("\n");
-	std::vector<std::pair<bool, int>> rowsThatNeedSpacePrint{};
+	// for(int i{}; i < board.size(); ++i){
+	// 	std::cout << board[i];
+	// 	if((i+1)%40 == 0){
+	// 		std::cout << '\n';
+	// 	}
+	// }
+	std::cout << ("\n");
+	std::vector<bool> rowsThatNeedSpacePrint{};
+	std::vector<int> lastPlaceInRow{};
+	bool temp = false;
+	int last = 0;
 	for(int i{}; i < static_cast<int>(board.size()); ++i){
-		bool temp = false;
-		int last = 0;
 		if(board[i] == 1 || board[i] == 2){
 			temp = true;
 			last = i;
 		}
 		if((i+1)%40 == 0){
 			if(temp){
-				rowsThatNeedSpacePrint.push_back(std::pair<bool, int>(true, last));
+				rowsThatNeedSpacePrint.push_back(true);
+				lastPlaceInRow.push_back(last + 1);
 			}else{
-				rowsThatNeedSpacePrint.push_back(std::pair<bool, int>(false, 0));
+				rowsThatNeedSpacePrint.push_back(false);
+				lastPlaceInRow.push_back(0);
 			}
 			temp = false;
 			last = 0;
 		}
 	}
+	std::cout << "\n\n\n";
 	for (int i = 0; i < static_cast<int>(rowsThatNeedSpacePrint.size()); ++i)
 	{
-		if(rowsThatNeedSpacePrint[i].first){
-			for(int j = i*40; j < rowsThatNeedSpacePrint[i].second; ++j){
+		SetConsoleTextAttribute(hStdout, FOREGROUND_RED);
+		if(rowsThatNeedSpacePrint[i]){
+			for(int j = i*40; j < lastPlaceInRow[i]; ++j){
 				if(board[j] == 0){
 					SetConsoleTextAttribute(hStdout, FOREGROUND_RED);
 				}else if(board[j] == 1){
@@ -186,12 +197,12 @@ void printBoard(const std::vector<short> board){
 				}else if(board[j] == 2){
 					SetConsoleTextAttribute(hStdout, BACKGROUND_RED);
 				}
-				printf("  ");
-				if((j+1) % 40 == 0)
-					printf("\n");
+				std::cout << ("  ");
 			}
+			SetConsoleTextAttribute(hStdout, FOREGROUND_RED);
+			std::cout << ("\n");
 		}else{
-			printf("\n");
+			std::cout << ("\n");
 		}
 	}
 }
