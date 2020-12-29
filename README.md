@@ -12,8 +12,5 @@ g++ -std=c++17 game.cpp main.cpp -o snake.exe -I./
 ```
 This will recompile the snake.exe file.
 
-### What I learned
-At first, I was trying to learn how to multithread using this project. However, I soon found myself in over my head and instead just kept it in one thread. I don't think multithreading this game would have made it faster anyway because we are limited by our printing speed not the computation time of each frame.
-
-### What I Can Improve
+### To Improve
 I could try to write a timer so that the program can detect when the frames are going to take longer to print and then have those frames last for longer so that the frames don't bleed together.
